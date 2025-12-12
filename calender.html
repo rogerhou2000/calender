@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        const toDoList = [];
+        let d = new Date();
+
+        const today = new Date();
+        const tomorrow = new Date();
+        tomorrow.setDate(today.getDate() + 1);
+
+        toDoList.push(
+            { id: 1, date: today.toISOString().split("T")[0], hour: "09:00", task: "買菜" },
+            { id: 1, date: tomorrow.toISOString().split("T")[0], hour: "10:00", task: "繳水費" },
+
+            { id: 1, date: "2025-12-25", hour: "11:00", task: "運動" },
+            { id: 2, date: "2025-12-25", hour: "12:00", task: "打掃" },
+            { id: 1, date: "2025-12-27", hour: "13:00", task: "看書" },
+            { id: 1, date: "2025-12-28", hour: "14:00", task: "買水果" },
+            { id: 1, date: "2025-12-29", hour: "15:00", task: "洗衣服" },
+            { id: 1, date: "2025-12-30", hour: "16:00", task: "倒垃圾" },
+            { id: 1, date: "2026-01-05", hour: "17:00", task: "煮晚餐" },
+            { id: 1, date: "2026-01-06", hour: "18:00", task: "散步" }
+        );
+
+    </script>
+</body>
+
+</html>
