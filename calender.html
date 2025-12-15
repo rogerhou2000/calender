@@ -5,17 +5,121 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="./css/bootstrap.css">
+    <style>
+        .custom-border {
+            border-top: 2.5px solid coral;
+            border-bottom: 2px solid coral;
+            color: rgb(1, 19, 80);
+        }
+
+        #list li {
+            list-style-type: none;
+        }
+        #list li::before{
+            content: "<> ";
+
+            color: chocolate;
+        }
+    </style>
 </head>
 
 <body>
-    
+    <header class="fixed-top container-fluid bg-info custom-border py-3 " style="color: rgb(1, 19, 80);">
+        <div class="fw-bold fs-4 container">行事曆</div>
+    </header>
+    <main class="container-fluid vh-100 " style="background-color: #f1dcd4;">
+
+        <div class="row h-100 ">
+
+            <div class="col-3 h-100">
+                <div class="mt-5 mb-2">&nbsp;</div>
+
+                <div id="list" class="p-3">
+                    <div class="accordion" id="calendarAccordion">
+                        <!-- 今天 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingToday">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseToday" aria-expanded="true" aria-controls="collapseToday">
+                                    今天
+                                </button>
+                            </h2>
+                            <div id="collapseToday" class="accordion-collapse collapse show"
+                                aria-labelledby="headingToday" data-bs-parent="#calendarAccordion">
+                                <div id="today" class="accordion-body">
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 明天 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTomorrow">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseTomorrow" aria-expanded="false"
+                                    aria-controls="collapseTomorrow">
+                                    明天
+                                </button>
+                            </h2>
+                            <div id="collapseTomorrow" class="accordion-collapse collapse"
+                                aria-labelledby="headingTomorrow" data-bs-parent="#calendarAccordion">
+                                <div id="tomorrow" class="accordion-body">
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 本月 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingMonth">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseMonth" aria-expanded="false" aria-controls="collapseMonth">
+                                    本月
+                                </button>
+                            </h2>
+                            <div id="collapseMonth" class="accordion-collapse collapse" aria-labelledby="headingMonth"
+                                data-bs-parent="#calendarAccordion">
+                                <div id=tMonth class="accordion-body">
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 其它 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOther">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseOther" aria-expanded="false" aria-controls="collapseOther">
+                                    其它
+                                </button>
+                            </h2>
+                            <div id="collapseOther" class="accordion-collapse collapse" aria-labelledby="headingOther"
+                                data-bs-parent="#calendarAccordion">
+                                <div id="other" class="accordion-body">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-9 h-100" style="background-color: #ece4bf;">
+                <div class="mt-5 mb-2">&nbsp;</div>
+            </div>
+        </div>
+    </main>
+    <script src="./js/bootstrap.js"></script>
     <script>
         const toDoList = [];
         let d = new Date();
 
         const today = new Date();
+        today.setHours(0, 0, 0, 0); // 修正：設為 00:00:00
+
         const tomorrow = new Date();
         tomorrow.setDate(today.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0); // 修正：設為 00:00:00
 
         toDoList.push(
             { id: 1, date: today.toISOString().split("T")[0], hour: "09:00", task: "買菜" },
@@ -30,7 +134,54 @@
             { id: 1, date: "2026-01-05", hour: "17:00", task: "煮晚餐" },
             { id: 1, date: "2026-01-06", hour: "18:00", task: "散步" }
         );
+        function makeList() {
+            // console.log(toDoList);
+            // 不要只抓未來，應該全部都要
+            let data = toDoList.slice();
 
+            data.sort((a, b) => {
+                const dateTimeA = new Date(`${a.date}T${a.hour}`);
+                const dateTimeB = new Date(`${b.date}T${b.hour}`);
+                return dateTimeA - dateTimeB;
+            });
+            let tDay = document.getElementById("today");
+            let tmDay = document.getElementById("tomorrow");
+            let tMonth = document.getElementById("tMonth");
+            let other = document.getElementById("other");
+
+            // 清空旧内容
+            tDay.innerHTML = "";
+            tmDay.innerHTML = "";
+            tMonth.innerHTML = "";
+            other.innerHTML = ""; // 修正：otherDay 改為 other
+
+            // 遍歷任務並分類
+            data.forEach(item => {
+                let li = document.createElement("li");
+                li.textContent = `${item.date} ${item.hour} - ${item.task}`;
+
+                let taskDate = new Date(item.date);
+                taskDate.setHours(0, 0, 0, 0);
+
+                if (taskDate.getTime() === today.getTime()) {
+                    // 今天的任務
+                    tDay.appendChild(li);
+                } else if (taskDate.getTime() === tomorrow.getTime()) {
+                    // 明天的任務
+                    tmDay.appendChild(li);
+                } else if (
+                    taskDate.getMonth() === today.getMonth() &&
+                    taskDate.getFullYear() === today.getFullYear()
+                ) {
+                    // 本月的任務
+                    tMonth.appendChild(li);
+                } else {
+                    // 其他時間的任務
+                    other.appendChild(li); // 修正：otherDay 改為 other
+                }
+            });
+        }
+        makeList();
     </script>
 </body>
 
