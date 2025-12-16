@@ -16,17 +16,31 @@
         #list li {
             list-style-type: none;
         }
-        #list li::before{
+
+        #list li::before {
             content: "<> ";
 
             color: chocolate;
+        }
+
+        .row-cols-7>* {
+            flex: 0 0 auto;
+            width: 14.2857142857%;
+        }
+
+        .bg-date {
+            background-color: rgb(91, 202, 193);
+        }
+
+        .calender [id^="d_"]{
+
         }
     </style>
 </head>
 
 <body>
     <header class="fixed-top container-fluid bg-info custom-border py-3 " style="color: rgb(1, 19, 80);">
-        <div class="fw-bold fs-4 container">行事曆</div>
+        <div class="fw-bold fs-4 ms-5">行事曆</div>
     </header>
     <main class="container-fluid vh-100 " style="background-color: #f1dcd4;">
 
@@ -104,8 +118,40 @@
                 </div>
             </div>
 
-            <div class="col-9 h-100" style="background-color: #ece4bf;">
+            <div class="col-9 h-100  justify-content-center" style="background-color: #ece4bf;">
                 <div class="mt-5 mb-2">&nbsp;</div>
+                <div class="container mt-4">
+                    <!-- 年份月份控制区 -->
+                    <div class="row">
+                        <div class="col-12 d-flex justify-content-center align-items-center bg-light p-2 border gap-3">
+                            <!-- 年份输入 -->
+                            <label for="year" class="fw-bold">年份：</label>
+                            <input type="number" id="year" class="form-control w-auto" value="2025" min="1900"
+                                max="2100">
+
+                            <!-- 月份输入 -->
+                            <label for="month" class="fw-bold">月份：</label>
+                            <input type="number" id="month" class="form-control w-auto" value="12" min="1" max="12">
+                        </div>
+                    </div>
+
+                    <!-- 日期区 -->
+                    <div class="row row-cols-7 text-center mt-3" id="calendar">
+                        <div class="col fw-bold  bg-date py-2">日</div>
+                        <div class="col fw-bold  bg-date py-2">一</div>
+                        <div class="col fw-bold  bg-date py-2">二</div>
+                        <div class="col fw-bold  bg-date py-2">三</div>
+                        <div class="col fw-bold  bg-date py-2">四</div>
+                        <div class="col fw-bold  bg-date py-2">五</div>
+                        <div class="col fw-bold  bg-date py-2">六</div>
+
+                        <div class="col border p-3">1</div>
+                        <div class="col border p-3">2</div>
+                        <div class="col border p-3">3</div>
+                        <!-- 依序填滿 -->
+
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -120,10 +166,17 @@
         const tomorrow = new Date();
         tomorrow.setDate(today.getDate() + 1);
         tomorrow.setHours(0, 0, 0, 0); // 修正：設為 00:00:00
+        function formatDate(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, "0");
+            const d = String(date.getDate()).padStart(2, "0");
+            return `${y}-${m}-${d}`;
+        }
+
 
         toDoList.push(
-            { id: 1, date: today.toISOString().split("T")[0], hour: "09:00", task: "買菜" },
-            { id: 1, date: tomorrow.toISOString().split("T")[0], hour: "10:00", task: "繳水費" },
+            { id: 1, date: formatDate(today), hour: "09:00", task: "買菜" },
+            { id: 1, date: formatDate(tomorrow), hour: "10:00", task: "繳水費" },
 
             { id: 1, date: "2025-12-25", hour: "11:00", task: "運動" },
             { id: 2, date: "2025-12-25", hour: "12:00", task: "打掃" },
@@ -134,10 +187,11 @@
             { id: 1, date: "2026-01-05", hour: "17:00", task: "煮晚餐" },
             { id: 1, date: "2026-01-06", hour: "18:00", task: "散步" }
         );
+        console.log(toDoList);
         function makeList() {
-            // console.log(toDoList);
+
             // 不要只抓未來，應該全部都要
-            let data = toDoList.slice();
+            let data = toDoList.filter(a => new Date(a.date) >= today);
 
             data.sort((a, b) => {
                 const dateTimeA = new Date(`${a.date}T${a.hour}`);
@@ -168,6 +222,7 @@
                     tDay.appendChild(li);
                 } else if (taskDate.getTime() === tomorrow.getTime()) {
                     // 明天的任務
+                    console.log(item);
                     tmDay.appendChild(li);
                 } else if (
                     taskDate.getMonth() === today.getMonth() &&
@@ -182,6 +237,56 @@
             });
         }
         makeList();
+        function renderCalendar() {
+            const year = parseInt(document.getElementById("year").value);
+            const month = parseInt(document.getElementById("month").value);
+            const calendar = document.getElementById("calendar");
+
+            // 清除旧的日期格子（保留前 7 个星期标题）
+            while (calendar.children.length > 7) {
+                calendar.removeChild(calendar.lastChild);
+            }
+
+            const daysInMonth = new Date(year, month, 0).getDate();
+            const firstDay = new Date(year, month - 1, 1).getDay();
+
+            // 前面補空格
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement("div");
+                empty.className = "col border p-3";
+                calendar.appendChild(empty);
+            }
+
+            // 填入日期
+            for (let d = 1; d <= daysInMonth; d++) {
+                const cell = document.createElement("div");
+                cell.className = "col border p-3";
+                cell.textContent = d;
+                calendar.appendChild(cell);
+                cell.id = `d_${year}-${month}-${d}`;
+
+            }
+            // 後面補空格
+            // 計算總格子數（前面空格 + 日期）
+            const totalCells = firstDay + daysInMonth;
+            // 計算最後一週剩餘的空格數
+            const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+
+            for (let i = 0; i < remaining; i++) {
+                const empty = document.createElement("div");
+                empty.className = "col border p-3";
+                calendar.appendChild(empty);
+            }
+
+        }
+
+        // 初始渲染
+        renderCalendar();
+
+        // 監聽年份和月份變化
+        document.getElementById("year").addEventListener("change", renderCalendar);
+        document.getElementById("month").addEventListener("change", renderCalendar);
+
     </script>
 </body>
 
