@@ -32,8 +32,24 @@
             background-color: rgb(91, 202, 193);
         }
 
-        .calender [id^="d_"]{
 
+        #calender [id^="d_"] {
+            cursor: pointer;
+            text-align: left;
+            height: 150px;
+            background: #f2f3b3;
+        }
+
+        .badge-hour {
+            display: inline-block;
+            background-color: #f0ad4e;
+            /* 橙色背景 */
+            color: white;
+            padding: 2px 6px;
+            border-radius: 8px;
+            /* 圓角 */
+            font-size: 0.8rem;
+            margin-bottom: 2px;
         }
     </style>
 </head>
@@ -136,7 +152,7 @@
                     </div>
 
                     <!-- 日期区 -->
-                    <div class="row row-cols-7 text-center mt-3" id="calendar">
+                    <div class="row row-cols-7 text-center mt-3" id="calender">
                         <div class="col fw-bold  bg-date py-2">日</div>
                         <div class="col fw-bold  bg-date py-2">一</div>
                         <div class="col fw-bold  bg-date py-2">二</div>
@@ -237,10 +253,11 @@
             });
         }
         makeList();
-        function renderCalendar() {
+        function renderCalendar() 
+        {
             const year = parseInt(document.getElementById("year").value);
             const month = parseInt(document.getElementById("month").value);
-            const calendar = document.getElementById("calendar");
+            const calendar = document.getElementById("calender");
 
             // 清除旧的日期格子（保留前 7 个星期标题）
             while (calendar.children.length > 7) {
@@ -253,17 +270,17 @@
             // 前面補空格
             for (let i = 0; i < firstDay; i++) {
                 const empty = document.createElement("div");
-                empty.className = "col border p-3";
+                empty.className = "col  p-3";
                 calendar.appendChild(empty);
             }
 
             // 填入日期
             for (let d = 1; d <= daysInMonth; d++) {
                 const cell = document.createElement("div");
-                cell.className = "col border p-3";
+                cell.className = "col border p-3 border-dark";
                 cell.textContent = d;
                 calendar.appendChild(cell);
-                cell.id = `d_${year}-${month}-${d}`;
+                cell.id = `d_${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 
             }
             // 後面補空格
@@ -277,6 +294,35 @@
                 empty.className = "col border p-3";
                 calendar.appendChild(empty);
             }
+            toDoList.filter(item =>
+                new Date(item.date).getFullYear() === year &&
+                new Date(item.date).getMonth() + 1 === month
+            ).forEach(ev => {
+                console.log(ev);
+                const cell = document.getElementById(`d_${ev.date}`);
+                if (cell) {
+                    // 建立一個容器 div，包住時間和任務
+                    const rowDiv = document.createElement("div");
+                    rowDiv.className = "event-row";
+
+                    // 時間標籤
+                    const hourDiv = document.createElement("div");
+                    hourDiv.className = "badge-hour me-2";
+                    hourDiv.textContent = ev.hour;
+
+                    // 任務文字
+                    const taskDiv = document.createElement("span");
+                    taskDiv.className = "small text-muted";
+                    taskDiv.textContent = ` ${ev.task}`;
+
+                    // 合併並加入格子
+                    rowDiv.appendChild(hourDiv);
+                    rowDiv.appendChild(taskDiv);
+                    cell.appendChild(rowDiv);
+                }
+
+            });
+
 
         }
 
