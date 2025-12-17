@@ -58,6 +58,26 @@
     <header class="fixed-top container-fluid bg-info custom-border py-3 " style="color: rgb(1, 19, 80);">
         <div class="fw-bold fs-4 ms-5">行事曆</div>
     </header>
+    <!-- #modal -->
+    <div class="modal" id="mList" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-date"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="show" class="mb-3"></div>
+                    <button type="button" id="add" class="btn btn-success" style="display: none;">新增</button>
+                    <button type="button" id="update" class="btn btn-info" style="display: none;">更新</button>
+                    <button type="button" id="delete" class="btn btn-danger" style="display: none;">刪除</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">離開</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <main class="container-fluid vh-100 " style="background-color: #f1dcd4;">
 
         <div class="row h-100 ">
@@ -195,6 +215,7 @@
             { id: 1, date: formatDate(tomorrow), hour: "10:00", task: "繳水費" },
 
             { id: 1, date: "2025-12-25", hour: "11:00", task: "運動" },
+            { id: 3, date: "2025-12-25", hour: "13:00", task: "運動" },
             { id: 2, date: "2025-12-25", hour: "12:00", task: "打掃" },
             { id: 1, date: "2025-12-27", hour: "13:00", task: "看書" },
             { id: 1, date: "2025-12-28", hour: "14:00", task: "買水果" },
@@ -203,17 +224,18 @@
             { id: 1, date: "2026-01-05", hour: "17:00", task: "煮晚餐" },
             { id: 1, date: "2026-01-06", hour: "18:00", task: "散步" }
         );
+        toDoList.sort((a, b) => {
+            const dateTimeA = new Date(`${a.date}T${a.hour}`);
+            const dateTimeB = new Date(`${b.date}T${b.hour}`);
+            return dateTimeA - dateTimeB;
+        })
         console.log(toDoList);
         function makeList() {
 
             // 不要只抓未來，應該全部都要
             let data = toDoList.filter(a => new Date(a.date) >= today);
 
-            data.sort((a, b) => {
-                const dateTimeA = new Date(`${a.date}T${a.hour}`);
-                const dateTimeB = new Date(`${b.date}T${b.hour}`);
-                return dateTimeA - dateTimeB;
-            });
+    
             let tDay = document.getElementById("today");
             let tmDay = document.getElementById("tomorrow");
             let tMonth = document.getElementById("tMonth");
@@ -253,8 +275,7 @@
             });
         }
         makeList();
-        function renderCalendar() 
-        {
+        function renderCalendar() {
             const year = parseInt(document.getElementById("year").value);
             const month = parseInt(document.getElementById("month").value);
             const calendar = document.getElementById("calender");
@@ -280,7 +301,7 @@
                 cell.className = "col border p-3 border-dark";
                 cell.textContent = d;
                 calendar.appendChild(cell);
-                cell.id = `d_${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                cell.id = `d_${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 
             }
             // 後面補空格
@@ -322,9 +343,61 @@
                 }
 
             });
+            document.querySelectorAll('[id^="d_"]').forEach(el => {
+                el.addEventListener("click", () => {
+                    
+                    let date = el.id.slice(2); // 例如 d_2025-12-17
+                    const modal = new bootstrap.Modal(document.getElementById("mList"));
+                    document.getElementById("modal-date").innerText = date;
+                    document.getElementById("show").innerHTML=""
 
+                    let todayList = toDoList.filter(list => date === list.date);
+                    console.log(todayList);
+                    let l = todayList.length;
+                    if (l > 0) {
+                        document.getElementById("delete").style.display = "inline-block";
+                        document.getElementById("update").style.display = "inline-block";
+                    } else {
+                        document.getElementById("delete").style.display = "none";
+                        document.getElementById("update").style.display = "none";
+
+                    }
+                    if (l < 3) {
+                        document.getElementById("add").style.display = "inline-block";
+
+                    } else {
+                        document.getElementById("add").style.display = "none";
+                    }
+
+
+
+
+
+                    todayList.forEach(ev => {
+                        const rowDiv = document.createElement("div");
+                        rowDiv.className = "event-row";
+                        const hourDiv = document.createElement("div");
+                        hourDiv.className = "badge-hour me-2";
+                        hourDiv.textContent = ev.hour;
+
+                        // 任務文字
+                        const taskDiv = document.createElement("span");
+                        taskDiv.className = "small text-muted";
+                        taskDiv.textContent = ` ${ev.task}`;
+
+                        // 合併並加入格子
+                        rowDiv.appendChild(hourDiv);
+                        rowDiv.appendChild(taskDiv);
+                        document.getElementById("show").appendChild(rowDiv);
+                    });
+
+                    modal.show();
+                });
+            });
 
         }
+
+
 
         // 初始渲染
         renderCalendar();
