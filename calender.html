@@ -172,8 +172,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="updateButton" class="btn btn-success" onclick="updateList()"
-                        data-date="" data-id="">
+                    <button type="button" id="updateButton" class="btn btn-success" onclick="updateList()" data-date=""
+                        data-id="">
                         確定
                     </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">離開</button>
@@ -328,6 +328,7 @@
             { id: 1, date: "2026-01-05", hour: "17:00", task: "煮晚餐" },
             { id: 1, date: "2026-01-06", hour: "18:00", task: "散步" }
         );
+
         toDoList.sort((a, b) => {
             const dateTimeA = new Date(`${a.date}T${a.hour}`);
             const dateTimeB = new Date(`${b.date}T${b.hour}`);
@@ -501,9 +502,15 @@
 
         }
         function renew() {
+            toDoList.sort((a, b) => {
+                const dateTimeA = new Date(`${a.date}T${a.hour}`);
+                const dateTimeB = new Date(`${b.date}T${b.hour}`);
+                return dateTimeA - dateTimeB;
+            })
             renderCalendar(
             );
             makeList();
+
         }
         function loadTaskForUpdate() {
             const date = document.getElementById("updateDate").value;
@@ -652,6 +659,7 @@
 
             toDoList.push(newItem);
             console.log("新增後的 toDoList:", toDoList);
+            renew();
 
             const modal = bootstrap.Modal.getInstance(document.getElementById("mAdd"));
             modal.hide();
