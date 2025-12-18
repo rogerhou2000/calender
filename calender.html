@@ -94,14 +94,95 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="dButton" class="btn btn-secondary" onclick="deleteList()" data-date="">確定</button>
+                    <button type="button" id="dButton" class="btn btn-secondary" onclick="deleteList()"
+                        data-date="">確定</button>
 
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">離開</button>
                 </div>
             </div>
         </div>
     </div>
-    <main class="container-fluid vh-100 " style="background-color: #f1dcd4;">
+    <!-- add modal -->
+    <div class="modal" id="mAdd" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">新增</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">日期</label>
+                        <input type="text" id="addDate" class="form-control" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="addHour" class="form-label">時間</label>
+                        <input type="time" id="addHour" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="addTask" class="form-label">事項</label>
+                        <input type="text" id="addTask" class="form-control">
+                    </div>
+
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="addButton" class="btn btn-secondary" onclick="addList()"
+                        data-date="">確定</button>
+
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">離開</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- update modal -->
+    <div class="modal" id="mUpdate" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">更新</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- 固定顯示日期 -->
+                    <div class="mb-3">
+                        <label class="form-label">日期</label>
+                        <input type="text" id="updateDate" class="form-control" readonly>
+                    </div>
+
+                    <!-- 下拉選單顯示該日的 task -->
+                    <div class="mb-3">
+                        <label for="updateSelect" class="form-label">選擇待辦事項</label>
+                        <select id="updateSelect" class="form-select" onchange="loadTaskForUpdate()">
+                            <!-- JS 動態生成 option -->
+                        </select>
+                    </div>
+
+                    <!-- 修改時間 -->
+                    <div class="mb-3">
+                        <label for="updateHour" class="form-label">時間</label>
+                        <input type="time" id="updateHour" class="form-control">
+                    </div>
+
+                    <!-- 修改事項 -->
+                    <div class="mb-3">
+                        <label for="updateTask" class="form-label">事項</label>
+                        <input type="text" id="updateTask" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="updateButton" class="btn btn-secondary" onclick="updateList()"
+                        data-date="" data-id="">
+                        確定
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">離開</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="container-fluid  " style="background-color: #f1dcd4; height: 110vh;">
 
         <div class="row h-100 ">
 
@@ -419,12 +500,40 @@
             });
 
         }
-        function renew(){
+        function renew() {
             renderCalendar(
             );
             makeList();
         }
+        function loadTaskForUpdate() {
+            const date = document.getElementById("updateDate").value;
+            const id = Number(document.getElementById("updateSelect").value);
 
+            const item = toDoList.find(it => it.date === date && it.id === id);
+            if (item) {
+                document.getElementById("updateHour").value = item.hour;
+                document.getElementById("updateTask").value = item.task;
+
+                // 存到按鈕 dataset
+                const btn = document.getElementById("updateButton");
+                btn.dataset.date = item.date;
+                btn.dataset.id = item.id;
+            }
+        }
+
+
+        function addPage(el) {
+            let date = el.innerText;
+
+            const modal = new bootstrap.Modal(document.getElementById("mAdd"));
+
+            document.getElementById("addDate").value = date;
+            document.getElementById("addButton").dataset.date = date;
+
+            modal.show()
+
+
+        }
         function deletePage(el) {
             let date = el.innerText;
 
@@ -446,19 +555,44 @@
                 });
             document.getElementById("dList").innerHTML = str;
             document.getElementById("dButton").dataset.date = date;
-            
+
             modal.show()
 
 
         }
+        function updatePage(el) {
+            let date = el.innerText;
+            document.getElementById("updateSelect").innerHTML = "";
+
+
+            const modal = new bootstrap.Modal(document.getElementById("mUpdate"));
+            document.getElementById("updateDate").value = date;
+            document.getElementById("updateButton").dataset.date = date;
+            toDoList.filter(item => item.date === date).forEach(item => {
+                document.getElementById("updateSelect").innerHTML += `<option value="${item.id}">${item.hour} - ${item.task} </option>`;
+            });
+            loadTaskForUpdate()
+
+
+            modal.show()
+
+
+        }
+
         function deleteList() {
-            const date = document.getElementById("dButton").dataset.date ;
+            for (i = 1; i <= 3; i++) {
+                if (!window.confirm("確定要刪除")) {
+                    return
+                }
+            }
+
+            const date = document.getElementById("dButton").dataset.date;
             console.log(date);
 
             const checkedBoxes = document.querySelectorAll("#dList input[type=checkbox]:checked");
 
             // 取出所有勾選的 id
-             const idsToDelete = Array.from(checkedBoxes).map(cb => Number(cb.value));
+            const idsToDelete = Array.from(checkedBoxes).map(cb => Number(cb.value));
 
 
             // 過濾掉勾選的項目
@@ -473,10 +607,83 @@
             modal.hide();
             console.log(toDoList);
             renew();
-            
-
-
         }
+
+
+        function addList() {
+            const date = document.getElementById("addButton").dataset.date;
+            const hour = document.getElementById("addHour").value;
+            const task = document.getElementById("addTask").value;
+
+            if (!hour || !task) {
+                alert("請輸入完整的時間與事項！");
+                return;
+            }
+            if (task.length >= 10) {
+                alert("請輸入十字以內事項！");
+                return;
+
+            }
+            const usedIds = toDoList
+                .filter(item => item.date === date)
+                .map(item => item.id);
+
+            // 用 for 從 1~3 找出可用 id
+            let id = null;
+            for (let i = 1; i <= 3; i++) {
+                if (!usedIds.includes(i)) {
+                    id = i;
+                    break;
+                }
+            }
+
+            if (id === null) {
+                alert(`日期 ${date} 的 id 1~3 都已經被使用，不能再新增！`);
+                return;
+            }
+
+            const newItem = {
+                id: id,
+                date: date,
+                hour: hour,
+                task: task
+            };
+
+
+            toDoList.push(newItem);
+            console.log("新增後的 toDoList:", toDoList);
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById("mAdd"));
+            modal.hide();
+        }
+        function updateList() {
+            const date = document.getElementById("updateButton").dataset.date;
+            const id = Number(document.getElementById("updateButton").dataset.id);
+            const hour = document.getElementById("updateHour").value;
+            const task = document.getElementById("updateTask").value;
+
+            if (!hour || !task) {
+                alert("請輸入完整的時間與事項！");
+                return;
+            }
+            if (task.length >= 10) {
+                alert("請輸入十字以內事項！");
+                return;
+            }
+
+            const item = toDoList.find(it => it.date === date && it.id === id);
+            if (item) {
+                item.hour = hour;
+                item.task = task;
+                console.log("更新後的 toDoList:", toDoList);
+            }
+            renew();
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById("mUpdate"));
+            modal.hide();
+        }
+
+
 
 
         // 初始渲染
