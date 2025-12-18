@@ -85,8 +85,8 @@
     <div class="modal" id="mDelete" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">刪除</h5>
+                <div class="modal-header bg-danger">
+                    <h5 class="modal-title text-white">刪除</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -94,7 +94,7 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="dButton" class="btn btn-secondary" onclick="deleteList()"
+                    <button type="button" id="dButton" class="btn btn-danger " onclick="deleteList()"
                         data-date="">確定</button>
 
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">離開</button>
@@ -105,9 +105,9 @@
     <!-- add modal -->
     <div class="modal" id="mAdd" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">新增</h5>
+            <div class="modal-content ">
+                <div class="modal-header bg-success">
+                    <h5 class="modal-title text-white">新增</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -128,7 +128,7 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="addButton" class="btn btn-secondary" onclick="addList()"
+                    <button type="button" id="addButton" class="btn btn-success" onclick="addList()"
                         data-date="">確定</button>
 
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">離開</button>
@@ -140,7 +140,7 @@
     <div class="modal" id="mUpdate" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-info">
                     <h5 class="modal-title">更新</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -172,7 +172,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="updateButton" class="btn btn-secondary" onclick="updateList()"
+                    <button type="button" id="updateButton" class="btn btn-success" onclick="updateList()"
                         data-date="" data-id="">
                         確定
                     </button>
