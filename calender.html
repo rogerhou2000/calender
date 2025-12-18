@@ -68,11 +68,34 @@
                 </div>
                 <div class="modal-body">
                     <div id="show" class="mb-3"></div>
-                    <button type="button" id="add" class="btn btn-success" style="display: none;">新增</button>
-                    <button type="button" id="update" class="btn btn-info" style="display: none;">更新</button>
-                    <button type="button" id="delete" class="btn btn-danger" style="display: none;">刪除</button>
+                    <button type="button" id="add" class="btn btn-success" style="display: none;"
+                        data-bs-dismiss="modal" onclick="addPage(document.getElementById('modal-date'))">新增</button>
+                    <button type="button" id="update" class="btn btn-info" style="display: none;"
+                        data-bs-dismiss="modal" onclick="updatePage(document.getElementById('modal-date'))">更新</button>
+                    <button type="button" id="delete" class="btn btn-danger" style="display: none;"
+                        data-bs-dismiss="modal" onclick="deletePage(document.getElementById('modal-date'))">刪除</button>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">離開</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- delete modal -->
+    <div class="modal" id="mDelete" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">刪除</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="dList"></div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="dButton" class="btn btn-secondary" onclick="deleteList()" data-date="">確定</button>
+
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">離開</button>
                 </div>
             </div>
@@ -193,7 +216,7 @@
     </main>
     <script src="./js/bootstrap.js"></script>
     <script>
-        const toDoList = [];
+        let toDoList = [];
         let d = new Date();
 
         const today = new Date();
@@ -235,7 +258,7 @@
             // 不要只抓未來，應該全部都要
             let data = toDoList.filter(a => new Date(a.date) >= today);
 
-    
+
             let tDay = document.getElementById("today");
             let tmDay = document.getElementById("tomorrow");
             let tMonth = document.getElementById("tMonth");
@@ -345,11 +368,11 @@
             });
             document.querySelectorAll('[id^="d_"]').forEach(el => {
                 el.addEventListener("click", () => {
-                    
+
                     let date = el.id.slice(2); // 例如 d_2025-12-17
                     const modal = new bootstrap.Modal(document.getElementById("mList"));
                     document.getElementById("modal-date").innerText = date;
-                    document.getElementById("show").innerHTML=""
+                    document.getElementById("show").innerHTML = ""
 
                     let todayList = toDoList.filter(list => date === list.date);
                     console.log(todayList);
@@ -396,7 +419,64 @@
             });
 
         }
+        function renew(){
+            renderCalendar(
+            );
+            makeList();
+        }
 
+        function deletePage(el) {
+            let date = el.innerText;
+
+            const modal = new bootstrap.Modal(document.getElementById("mDelete"));
+            let str = "";
+            console.log(date);
+
+
+            toDoList
+                .filter(item => item.date === date)
+                .forEach((item) => {
+                    str += `
+        <label for="task${item.id}">
+          <input type="checkbox" id="task${item.id}" name="task${item.id}" value="${item.id}">
+          ${item.date} ${item.hour} ${item.task}
+        </label><br>
+      `;
+
+                });
+            document.getElementById("dList").innerHTML = str;
+            document.getElementById("dButton").dataset.date = date;
+            
+            modal.show()
+
+
+        }
+        function deleteList() {
+            const date = document.getElementById("dButton").dataset.date ;
+            console.log(date);
+
+            const checkedBoxes = document.querySelectorAll("#dList input[type=checkbox]:checked");
+
+            // 取出所有勾選的 id
+             const idsToDelete = Array.from(checkedBoxes).map(cb => Number(cb.value));
+
+
+            // 過濾掉勾選的項目
+            toDoList = toDoList.filter(item => !(item.date === date && idsToDelete.includes(item.id)));
+
+
+
+            console.log("刪除後的 toDoList:", toDoList);
+
+            // 關閉 modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById("mDelete"));
+            modal.hide();
+            console.log(toDoList);
+            renew();
+            
+
+
+        }
 
 
         // 初始渲染
